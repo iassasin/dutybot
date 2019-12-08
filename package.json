@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@koa/router": "^8.0.2",
+    "koa": "^2.11.0",
+    "telegraf": "^3.34.1",
+    "yaml": "^1.7.2"
+  }
+}
