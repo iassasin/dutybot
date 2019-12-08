@@ -1,8 +1,18 @@
 {
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
   "dependencies": {
     "@koa/router": "^8.0.2",
     "koa": "^2.11.0",
     "telegraf": "^3.34.1",
+    "typescript": "^3.7.3",
     "yaml": "^1.7.2"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.11.0",
+    "@types/koa__router": "^8.0.2",
+    "@types/yaml": "^1.2.0"
   }
 }

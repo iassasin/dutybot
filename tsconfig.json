@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"outDir": "dist",
+		"target": "ESNext",
+		"module": "CommonJS",
+		"allowUnreachableCode": true,
+		"experimentalDecorators": true,
+		"moduleResolution": "node",
+		"noImplicitThis": true,
+		"noImplicitAny": true,
+		"importHelpers": true,
+		"preserveWatchOutput": true
+	},
+	"include": [
+		"./**/*",
+	]
+}
