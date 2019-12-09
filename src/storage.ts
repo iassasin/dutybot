@@ -9,6 +9,7 @@ export interface Chat {
 export interface DutyMan {
 	id: number;
 	username: string;
+	name: string;
 }
 
 export interface DutySlot {
@@ -31,6 +32,8 @@ export default class Storage<T> {
 	constructor(filename: string, defaultObj: T = {} as T) {
 		this.filename = filename;
 		this.dataObj = defaultObj;
+
+		this.reload();
 	}
 
 	reload() {

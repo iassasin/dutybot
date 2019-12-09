@@ -5,6 +5,7 @@ import * as YAML from 'yaml';
 import * as fs from 'fs';
 
 import Storage, { BotStorage } from './src/storage';
+import DutyService from './src/DutyService';
 
 const config = YAML.parse(fs.readFileSync(`${__dirname}/../config.yml`).toString());
 
@@ -13,8 +14,11 @@ let storage = new Storage<BotStorage>(`${__dirname}/../data.json`, {
 	dutySlots: [],
 	subscribedChats: [],
 });
-
 let bot = new Telegraf(config.bot.token);
+let dutyService = new DutyService(storage, bot);
+
+dutyService.update();
+
 bot.command('/subscribe_group', async ctx => {
 	let {message} = ctx.update;
 
