@@ -20,7 +20,7 @@ export default class DutyService {
 			let startTime = new Date(slot.startTime);
 			if (date < startTime) {
 				console.info(`Next time slot at ${slot.startTime}`);
-				this.timer = setTimeout(this.checkDuty.bind(this), +startTime - +date);
+				this.timer = setTimeout(this.checkDuty.bind(this), +startTime - Date.now());
 				return;
 			}
 		}
@@ -55,5 +55,25 @@ export default class DutyService {
 		for (let chat of this.storage.data.subscribedChats) {
 			this.bot.telegram.sendMessage(chat.id, message);
 		}
+	}
+
+	addTimeSlot(userId: number, startTime: Date) {
+		this.storage.mutate(data => {
+			data.dutySlots.push({userId, startTime: startTime.toISOString()});
+		});
+	}
+
+	deleteTimeSlot(userId: number, startTime: Date) {
+		let time = startTime.toISOString();
+		this.storage.mutate(data => {
+			data.dutySlots = data.dutySlots.filter(slot => !(slot.userId === userId && slot.startTime === time));
+		});
+	}
+
+	deleteByTime(startTime: Date) {
+		let time = startTime.toISOString();
+		this.storage.mutate(data => {
+			data.dutySlots = data.dutySlots.filter(slot => slot.startTime !== time);
+		});
 	}
 }
