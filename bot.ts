@@ -1,4 +1,4 @@
-import Telegraf from 'telegraf';
+import Telegraf, { ContextMessageUpdate } from 'telegraf';
 import * as Koa from 'koa';
 import * as KoaRouter from '@koa/router';
 import * as YAML from 'yaml';
@@ -19,24 +19,70 @@ let dutyService = new DutyService(storage, bot);
 
 dutyService.update();
 
-bot.command('/subscribe_group', async ctx => {
+bot.command('subscribe', async ctx => {
 	let {message} = ctx.update;
 
 	if (message.from.id === config.bot.ownerId) {
-		if (!storage.data.subscribedChats.some(x => x.id === ctx.chat.id)) {
+		let match = message.text.match(/\/\w+ (-?\d+)/) || [];
+		let chatId = +match[1] || ctx.chat.id;
+
+		if (!storage.data.subscribedChats.some(x => x.id === chatId)) {
 			storage.mutate(data => data.subscribedChats.push({
-				id: ctx.chat.id,
+				id: chatId,
 				title: ctx.chat.title,
 				type: ctx.chat.type,
 			}));
-			ctx.reply('Группа подписана!');
+			ctx.reply('Чат подписан!');
 		} else {
-			ctx.reply('Группа уже подписана!');
+			ctx.reply('Чат уже подписан!');
 		}
 	} else {
 		ctx.reply('Недостаточно прав!');
 	}
 });
+
+bot.command('unsubscribe', async ctx => {
+	let {message} = ctx.update;
+
+	if (message.from.id === config.bot.ownerId) {
+		let match = message.text.match(/\/\w+ (-?\d+)/) || [];
+		let chatId = +match[1] || ctx.chat.id;
+
+		if (storage.data.subscribedChats.some(x => x.id === chatId)) {
+			storage.mutate(data => {
+				data.subscribedChats = data.subscribedChats.filter(x => x.id !== chatId);
+			});
+			ctx.reply('Чат отписан!');
+		} else {
+			ctx.reply('Чат не подписан!');
+		}
+	} else {
+		ctx.reply('Недостаточно прав!');
+	}
+});
+
+bot.command('subscribes', async ctx => {
+	let {message} = ctx.update;
+
+	if (message.from.id === config.bot.ownerId) {
+		ctx.reply(storage.data.subscribedChats.map(x => `${x.type} [ ${x.id} ]: ${x.title}`).join('\n'));
+	} else {
+		ctx.reply('Недостаточно прав!');
+	}
+});
+
+bot.catch(async (err: any, ctx: ContextMessageUpdate) => {
+	console.error(`Ooops, ecountered an error for ${ctx.updateType}`, err);
+});
+
+bot.start(async ctx => {
+	console.log(`/start from`, {
+		id: ctx.chat.id,
+		title: ctx.chat.title,
+		type: ctx.chat.type,
+	});
+});
+
 bot.launch();
 
 let app = new Koa();
