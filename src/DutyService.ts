@@ -40,10 +40,10 @@ export default class DutyService {
 					if (user.username) {
 						this.broadcast(`Настала очередь дежурить @${user.username}`);
 					} else {
-						this.broadcast(`Настала очередь дежурить @${user.id}(${user.name})`);
+						this.broadcast(`Настала очередь дежурить [${user.name}](tg://user?id=${user.id})`);
 					}
 				} else {
-					this.broadcast(`Кто-то неизвестный с id ${slot.userId} теперь дежурный!`);
+					this.broadcast(`Кто-то неизвестный с id [${slot.userId}](tg://user?id=${slot.userId}) теперь дежурный!`);
 				}
 			}
 		}
@@ -53,7 +53,7 @@ export default class DutyService {
 
 	broadcast(message: string) {
 		for (let chat of this.storage.data.subscribedChats) {
-			this.bot.telegram.sendMessage(chat.id, message);
+			this.bot.telegram.sendMessage(chat.id, message, {parse_mode: 'Markdown'});
 		}
 	}
 
