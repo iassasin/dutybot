@@ -1,10 +1,11 @@
 import Telegraf, { ContextMessageUpdate } from 'telegraf';
 import * as Koa from 'koa';
 import * as KoaRouter from '@koa/router';
+import * as bodyparser from 'koa-bodyparser';
 import * as YAML from 'yaml';
 import * as fs from 'fs';
 
-import Storage, { BotStorage } from './src/storage';
+import Storage, { BotStorage, DutySlot } from './src/storage';
 import DutyService from './src/DutyService';
 
 const config = YAML.parse(fs.readFileSync(`${__dirname}/../config.yml`).toString());
@@ -87,6 +88,22 @@ bot.launch();
 
 let app = new Koa();
 let router = new KoaRouter();
+
+router.use(bodyparser({enableTypes: ['json']}));
+router.patch('/schedule', async (ctx) => {
+	let slots = ctx.request.body && ctx.request.body.slots as DutySlot[];
+	slots = Array.isArray(slots) ? slots : [];
+
+	for (let slot of slots) {
+		let startTime = new Date(slot.startTime);
+		dutyService.deleteByTime(startTime);
+		dutyService.addTimeSlot(slot.userId, startTime);
+	}
+
+	ctx.response.body = `Added ${slots.length} slots\n`;
+
+	dutyService.update();
+});
 
 app.use(router.routes());
 
